@@ -1,3 +1,4 @@
+#Beam
 #Data/File Transmission over TCP sockets
 
 Server Can Distribute(beam) to all, Clients join in to get their serving
@@ -15,3 +16,7 @@ Server Can Distribute(beam) to all, Clients join in to get their serving
 #Examples;
 	./beam -s /root/Desktop/log.txt 192.168.1.101
 	./beam -c /root/Downloads/ 192.168.1.134
+
+#More Developments ongoing
+
+Eccentric Tensor Labs
