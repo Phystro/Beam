@@ -15,6 +15,9 @@ void beamFile(FILE *fp, int sockfd){
 	ssize_t total = 0;
 	char data[BUFFSIZE] = {0};
 
+	long int start = now();
+	printf("\n***Reading and Transmitting[sending] Binary Data...\n");
+	printf("\n");
 	while (( n = fread(data, sizeof(char), BUFFSIZE, fp) ) > 0 ){
 		total += n;
 		if ( n != BUFFSIZE && ferror(fp) )
@@ -22,10 +25,15 @@ void beamFile(FILE *fp, int sockfd){
 
 		if ( send(sockfd, data, n, 0) < 0)
 			error("[-] Error Sending File to client");
+		
+		statusProgress(total, (now() - start));
 		memset(data, 0, BUFFSIZE);
 	}
 
-	printf("[+] Sent %ld bytes of data\n", total);
+	printf("\n\n");
+	long int tt = now() - start;
+	beamRate(total, tt);
+	printf("[+] Sent %ld bytes of data to client\n", total);
 }
 
 void BeamServer(char *filepath, char *server_ip){
@@ -66,23 +74,26 @@ void BeamServer(char *filepath, char *server_ip){
 	char *filename = basename(filepath);
 	if ( filename ==NULL )
 		error("[-] Error getting Filename");
-	printf("[+] Ready to send file '%s'\n", filename);
+	printf("[+] Ready to send file: '%s'\n", filename);
 	
 	char dataBuff[BUFFSIZE] = {0};
 	strncpy(dataBuff, filename, strlen(filename));
 	if ( send(clientSock, dataBuff, BUFFSIZE, 0) < 0)
 		error("[-] Error sending Filename to Client");
-	printf("[+] Success: Sent Filename to Client\n");
+	printf("[+] Success: Sent Filename '%s' to Client\n", filename);
 
 	//Reading into file for transfer
 	FILE *fp = fopen(filepath, "rb");
 	if (fp == NULL)
 		error("[-] Error Opening File for reading");
+	printf("[+] Opened File: '%s' for Reading and Transmitting binary data\n", filename);
 
 	beamFile(fp, clientSock);
 
+	printf("\nCleaning up......\n");
 	fclose(fp);
-
+	printf("[+] Closed File: '%s' after Reading and Transmission\n", filename);
 	close(serverSock);
+	printf("[+] Server Socket Closed\n");
 
 }

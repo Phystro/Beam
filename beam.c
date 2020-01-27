@@ -1,6 +1,6 @@
 /*
  * Name:	Beam
- * Version:	0.1
+ * Version:	0.20
  * Author:	Anthony Karoki
  * Alias:	Phystro/PhyTensor
  * Description:	File Sharing/Transmission program using TCP Sockets over LAN environments for Linux systems

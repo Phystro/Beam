@@ -12,6 +12,7 @@
 long int now();
 void beamRate(double nbytes, double ntime);
 void error(char *report);
+void statusProgress(long int dataInflow, long int timeFrames);
 void BeamServer(char *filepath, char *server_ip);
 void BeamClient(char *filedest, char *server_ip);
 
