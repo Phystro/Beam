@@ -20,5 +20,7 @@
 
 ###### More Developments ongoing
 
+###### Tested Successfully on Kali Linux. Will do well on all Linux distros. Await for Windows/Mac later on...
+
 ##### Eccentric Tensor Labs
 ###### 2020
