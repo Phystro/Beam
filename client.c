@@ -28,7 +28,6 @@ void wbeamFile(FILE *fp, int sockfd, long int filesiz){
 			error("[-] Error Writing File");
 
 		ratioProgress(total, filesiz, (now() - start) );
-		//statusProgress(total, (now() - start));
 		memset(data, 0, BUFFSIZE);
 	}
 
