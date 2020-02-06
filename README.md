@@ -18,6 +18,9 @@
 * ./beam -s /root/Desktop/log.txt 192.168.1.101
 * ./beam -c /root/Downloads/ 192.168.1.134
 
+#### Trade-offs
+* Inability to use one extent/fragment on storage space. Will cause signifcant fragmentation. You can always defrag later.
+
 ###### More Developments ongoing
 
 ###### Tested Successfully on Kali Linux. Will do well on all Linux distros. Await for Windows/Mac later on...
