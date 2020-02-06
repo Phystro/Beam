@@ -49,8 +49,6 @@ void ratioProgress(uint64_t curr_iter, uint64_t final_iter, double timeFrame){
 	char space = ' ';
 	char stdsize[9];
 	char stdunit[9];
-	memset(stdsize, 0, 8);
-	//char status[64] = {0};
 	double ave_rate;
 	double curr_size;
 
@@ -83,9 +81,6 @@ void ratioProgress(uint64_t curr_iter, uint64_t final_iter, double timeFrame){
 			strcpy(stdunit, " b/s\0");
 		}
 
-		//strcpy(status, "Transferring...| \0");
-		//strcat(status, "TimeTaken: ");
-		//strcat(status, (char *) &timeFrame);
 		printf("Transferring...|%cTime:%c%.2lfsecs...|%cStatus:%c%.2lf%%...|%cCurrent%cSize%c%.3lf%s...|%cRate:%c%.2lf%s...|%c",
 				space, space, timeFrame, space, space, pprog,
 				space, space, space, curr_size, stdsize,
