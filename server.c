@@ -9,13 +9,13 @@
 #include <libgen.h>
 #include "beam.h"
 
-void beamFile(FILE *fp, int sockfd){
+void beamFile(FILE *fp, int sockfd, long int filesiz){
 
 	int n;
 	ssize_t total = 0;
 	char data[BUFFSIZE] = {0};
 
-	long int start = now();
+	double start = now();
 	printf("\n***Reading and Transmitting[sending] Binary Data...\n");
 	printf("\n");
 	while (( n = fread(data, sizeof(char), BUFFSIZE, fp) ) > 0 ){
@@ -26,14 +26,17 @@ void beamFile(FILE *fp, int sockfd){
 		if ( send(sockfd, data, n, 0) < 0)
 			error("[-] Error Sending File to client");
 		
-		statusProgress(total, (now() - start));
+		ratioProgress(total, filesiz, (now() - start) );
 		memset(data, 0, BUFFSIZE);
 	}
 
 	printf("\n\n");
-	long int tt = now() - start;
+	double tt = now() - start;
 	beamRate(total, tt);
-	printf("[+] Sent %ld bytes of data to client\n", total);
+
+	if ( total != filesiz )
+		error("[-] Failed to completely transfer all Data");
+	printf("[+] %ld bytes of data read and sent to client\n", total);
 }
 
 void BeamServer(char *filepath, char *server_ip){
@@ -77,18 +80,27 @@ void BeamServer(char *filepath, char *server_ip){
 	printf("[+] Ready to send file: '%s'\n", filename);
 	
 	char dataBuff[BUFFSIZE] = {0};
+	//send filename
 	strncpy(dataBuff, filename, strlen(filename));
 	if ( send(clientSock, dataBuff, BUFFSIZE, 0) < 0)
 		error("[-] Error sending Filename to Client");
 	printf("[+] Success: Sent Filename '%s' to Client\n", filename);
+	//send filesize
+	long int fs = filesize(filepath);
+	if (fs == -1)
+		error("[-] Error getting filesize");
+	if ( send(clientSock, &fs, sizeof(long int), 0) < 0 )
+		error("[-] Error sending file size to Client");
+	printf("[+] Success: Sent file size (%ld bytes) to Client\n", fs);
 
 	//Reading into file for transfer
 	FILE *fp = fopen(filepath, "rb");
 	if (fp == NULL)
 		error("[-] Error Opening File for reading");
 	printf("[+] Opened File: '%s' for Reading and Transmitting binary data\n", filename);
+	printf("[+] Ready to Transfer %ld Bytes of file: %s to Client\n", fs, filename);
 
-	beamFile(fp, clientSock);
+	beamFile(fp, clientSock, fs);
 
 	printf("\nCleaning up......\n");
 	fclose(fp);

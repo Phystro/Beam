@@ -8,14 +8,14 @@
 #include <arpa/inet.h>
 #include "beam.h"
 
-void wbeamFile(FILE *fp, int sockfd){
+void wbeamFile(FILE *fp, int sockfd, long int filesiz){
 
 	int n;
 	ssize_t total = 0;
 	char data[BUFFSIZE] = {0};
 
 	//start clock for timing
-	long int start = now();
+	double start = now();
 	printf("\n***Receiving and Writing Binary Data...\n");
 	printf("\n");
 	while ( (n = recv(sockfd, data, BUFFSIZE, 0)) > 0){
@@ -27,15 +27,19 @@ void wbeamFile(FILE *fp, int sockfd){
 		if ( fwrite(data, sizeof(char), n, fp) != n )
 			error("[-] Error Writing File");
 
-		statusProgress(total, (now() - start));
+		ratioProgress(total, filesiz, (now() - start) );
+		//statusProgress(total, (now() - start));
 		memset(data, 0, BUFFSIZE);
 	}
 
 	printf("\n\n");
-	long int tt = now() - start;
-	//printf("\n\n[+] %ld seconds - Total Time Taken\n", tt);
-	//(tt == 0) ? printf("inf[near instantaneous]\n") : printf("[+] %ld bytes/secs - Average Beaming and Writing Rate\n", total/tt);
+	double tt = now() - start;
+	//printf("\n\n[+] %lf seconds - Total Time Taken: size: %ld\n", tt, total);
+	//(tt == 0) ? printf("inf[near instantaneous]\n") : printf("[+] %lf bytes/secs - Average Beaming and Writing Rate\n", total/tt);
 	beamRate(total, tt);
+
+	if ( total != filesiz )
+		error("[-] Error Receiving and Writing Complete Data");
 	printf("[+] %ld bytes of data Received and Written\n", total);
 }
 
@@ -53,18 +57,25 @@ void BeamClient(char *filedest, char *server_ip){
 	serverAddr.sin_port = htons(SERVERPORT);
 	if ( inet_pton(AF_INET, server_ip, &serverAddr.sin_addr) < 0 )
 		error("[-] IP Address Conversion Error");
-	printf("[+] IP Address COnversion Success");
+	printf("[+] IP Address Conversion Success");
 
 	if ( connect(clientSock, (const struct sockaddr *) &serverAddr, servlen) < 0)
 		error("[-] Connection Error! Failed to make connection");
 	printf("[+] Successful Connection made\n");
 
 	char filename[BUFFSIZE] = {0};
+	//receive filename
 	if ( recv(clientSock, filename, BUFFSIZE, 0) < 0)
 		error("[-] Error Receiving Filename from Server");
 	printf("[+] Received Filename as: '%s'\n", filename);
 
-	printf("[+] Ready to receive file: '%s' from: %s:%d\n", filename, inet_ntoa(serverAddr.sin_addr), ntohs(serverAddr.sin_port));
+	//receive file size
+	long int fs;
+	if ( recv(clientSock, &fs, sizeof(long int), 0) < 0 )
+		error("[-] Error Receiving File Size from Server");
+	printf("[+] Received File Size as: %ld Bytes\n", fs);
+
+	printf("[+] Ready to receive %ld Bytes of file: '%s' from: %s:%d\n", fs, filename, inet_ntoa(serverAddr.sin_addr), ntohs(serverAddr.sin_port));
 	strcat(filedest, "/");
 	strcat(filedest, filename);
 	
@@ -73,9 +84,9 @@ void BeamClient(char *filedest, char *server_ip){
 		error("[-] Error Opening File\n");
 	printf("[+] Created and Opened File for Writing Binary Data\n");
 
-	wbeamFile(fp, clientSock);
+	wbeamFile(fp, clientSock, fs);
 
-	printf("[+] Saved file '%s' in specified Filepath: %s\n", filename, filedest);
+	printf("\n[+] Saved file '%s' in specified Filepath: %s\n", filename, filedest);
 
 	printf("\n[+]Cleaning Up.........\n");
 	fclose(fp);
