@@ -25,7 +25,7 @@ void beamFile(FILE *fp, int sockfd, long int filesiz){
 
 		if ( send(sockfd, data, n, 0) < 0)
 			error("[-] Error Sending File to client");
-		
+
 		ratioProgress(total, filesiz, (now() - start) );
 		memset(data, 0, BUFFSIZE);
 	}

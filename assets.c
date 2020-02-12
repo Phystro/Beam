@@ -9,6 +9,13 @@ double kb = 1000.0;
 double mb = 1000000.0;
 double gb = 1000000000.0;
 
+struct timef_t{
+	//time formatting/standard
+	uint16_t hrs;
+	uint16_t mins;
+	double scs;
+} Timef;
+
 void error(char *report){
 	perror(report);
 	exit(1);
@@ -35,15 +42,19 @@ long int filesize(const char *filename){
 	}
 }
 
-/*
-void renderProgressBar(uint64_t current, uint64_t final){
-	char load = '=';
-	char nonload = '_';
-	char *f = "";
-	double ratio = (double) current/final;
-	double perc = 100 * ratio;
+void timeUpdate(double secs){
+	uint16_t m, h;
+	double s, hfs;
+	hfs = secs/3600;
+
+	h = (int) hfs;
+	m = (int) 60 * (hfs - h);
+	s = 60 * ((60 * (hfs - h)) - m);
+
+	Timef.hrs = h;
+	Timef.mins = m;
+	Timef.scs = s;
 }
-*/
 
 void ratioProgress(uint64_t curr_iter, uint64_t final_iter, double timeFrame){
 	char space = ' ';
@@ -55,6 +66,7 @@ void ratioProgress(uint64_t curr_iter, uint64_t final_iter, double timeFrame){
 	double pprog = 100 * ( (double) curr_iter/final_iter );
 	
 	if (timeFrame != 0.0){
+		timeUpdate(timeFrame);
 		ave_rate = curr_iter/timeFrame;
 
 		if (curr_iter > 10*kb && curr_iter < mb){
@@ -81,9 +93,10 @@ void ratioProgress(uint64_t curr_iter, uint64_t final_iter, double timeFrame){
 			strcpy(stdunit, " b/s\0");
 		}
 
-		printf("Transferring...|%cTime:%c%.2lfsecs...|%cStatus:%c%.2lf%%...|%cCurrent%cSize%c%.3lf%s...|%cRate:%c%.2lf%s...|%c",
-				space, space, timeFrame, space, space, pprog,
-				space, space, space, curr_size, stdsize,
+		printf("|%cTime:%c%dH:%dM:%.2lfs...|%cStatus:%c%.2lf%%...|%cSize:%c%.3lf%s...|%cRate:%c%.2lf%s...|%c",
+				space, space, Timef.hrs, Timef.mins, Timef.scs,
+				space, space, pprog,
+				space, space, curr_size, stdsize,
 				space, space, ave_rate, stdunit, space);
 		printf("\r");
 		fflush(stdout);
