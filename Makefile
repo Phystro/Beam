@@ -4,7 +4,7 @@ CFLAGS=-Wall -g
 all: beam
 
 install:
-	cp beam /usr/bin/
+	cp beam /usr/local/bin/
 
 beam: beam.o client.o server.o assets.o
 	$(CC) $(CFLAGS) beam.o client.o server.o assets.o -o beam
