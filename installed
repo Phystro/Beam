@@ -1,0 +1,46 @@
+##NETWORK STATUS
+bmon
+slurm
+iftop
+ethstatus
+speedometer = speedometer -t interface -r interface
+findmyhash
+gnupg
+stegosuite
+
+anki
+pychess
+crafty
+astromenace
+anki
+planner
+ne
+fig2ps
+pysine
+psensor
+wavemon
+cmake
+catimg
+gobuster
+pip3 install vpython
+pv
+seclists
+i3
+dnsmasq
+isc-dhcp-server
+ttyload
+iostat
+blktrace
+iotop iptraf acct monit nethogs iftop monitorix arpwatch suricata vnstat nmon collectl
+netdata
+tlp
+unrar
+cpulimit
+unrar rar
+speedtest-cli
+iperf
+step
+openfoam
+hardinfo
+radeontop
+teamviewer
